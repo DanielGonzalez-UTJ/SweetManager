@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
+        <title>SweetManager - Punto de venta</title>
+
+        <link
+            href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+
+        <link rel="stylesheet" href="css/styles.css" />
+    </head>
+
+    <body>
+        <div class="app">
+            <aside>
+                <div class="logo">
+                    <img src="imagenes/logo.png" alt="SweetManager" class="logo-img">
+                    Sweet<b>Manager</b>
+                    <small>Sistema integral para dulcerías</small>
+                </div>
+
+                <button class="nav on" data-v="dashboard">
+                    Dashboard
+                </button>
+
+                <button class="nav" data-v="venta">
+                    Punto de venta
+                </button>
+
+                <button class="nav" data-v="pedidos">
+                    Pedidos
+                    <span class="b p" id="np"></span>
+                </button>
+
+                <div class="stripe">
+                    <i style="background: var(--sweet-pink)"> </i>
+                    <i style="background: var(--sweet-yellow)"></i>
+                    <i style="background: var(--sweet-cyan)"></i>
+                </div>
+            </aside>
+
+            <main>
+                <div class="top">
+                    <h2 id="ttl"></h2>
+                    <span class="who" id="who"></span>
+                </div>
+
+                <div id="view"></div>
+            </main>
+        </div>
+
+        <dialog id="dlg">
+            <h3 id="dt"></h3>
+
+            <div id="db"></div>
+
+            <div
+                style="
+                    display: flex;
+                    gap: 8px;
+                    margin-top: 16px;
+                    justify-content: flex-end;
+                "
+            >
+                <button
+                    class="btn"
+                    id="dcx"
+                    style="background: var(--muted)"
+                    onclick="dlg.close()"
+                >
+                    Cerrar
+                </button>
+
+                <button class="btn pk" id="dok">
+                    Aceptar
+                </button>
+            </div>
+        </dialog>
+
+        <div class="toast" id="toast"></div>
+
+        <script src="js/data.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/dashboard.js"></script>
+        <script src="js/caja.js"></script>
+        <script src="js/pedidos.js"></script>
+        <script src="js/main.js"></script>
+    </body>
+</html>
+
