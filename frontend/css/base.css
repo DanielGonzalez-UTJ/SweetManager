@@ -1,0 +1,82 @@
+/*Variables de color, temas claro/oscuro y reglas globales*/
+:root {
+    --sweet-navy: #092550;
+    --sweet-pink: #ec186c;
+    --sweet-yellow: #fbc311;
+    --sweet-cyan: #119bea;
+    --sweet-brown: #6c2912;
+    --sweet-bg-light: #eddde4;
+    --ok: #28a745;
+    --warn: #fd7e14;
+    --err: #dc3545;
+    --bg: #ffffff;
+    --bg2: #f8f9fa;
+    --text: #092550;
+    --muted: #6c757d;
+    --border: #dee2e6;
+    --card: #ffffff;
+    --dlg: #ffffff;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/*Tema oscuro y claro*/
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #0b1630;
+        --bg2: #101d3d;
+        --text: #f1f3f8;
+        --muted: #9aa5bd;
+        --border: #22345f;
+        --card: #12214a;
+        --dlg: #1f3b7a;
+    }
+}
+
+:root[data-theme="dark"] {
+    --bg: #0b1630;
+    --bg2: #101d3d;
+    --text: #f1f3f8;
+    --muted: #9aa5bd;
+    --border: #22345f;
+    --card: #12214a;
+    --dlg: #1f3b7a;
+}
+
+/*Estilos globales*/
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+    margin: 0;
+    background: var(--bg2);
+    color: var(--text);
+    font: 15px/1.4 Nunito, system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+    font-family: "Baloo 2", Nunito, sans-serif;
+    margin: 0;
+}
+
+button {
+    font: inherit;
+    cursor: pointer;
+    border: 0;
+    border-radius: 12px;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid var(--sweet-cyan);
+    outline-offset: 2px;
+}

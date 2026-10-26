@@ -1,0 +1,183 @@
+/*Punto de venta: productos, carrito y formas de pago*/
+
+/*Punto de venta*/
+.search {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+    color: var(--text);
+    font: inherit;
+}
+
+.chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 0;
+}
+
+.chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    white-space: nowrap;
+    font-weight: 700;
+}
+
+.chip.on {
+    background: var(--sweet-navy);
+    color: #ffffff;
+    border-color: var(--sweet-navy);
+}
+
+/*Productos*/
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+}
+
+.prod {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 12px 8px;
+    text-align: center;
+    color: var(--text);
+    position: relative;
+    border-radius: 14px;
+    transition: transform 0.15s, border-color 0.15s;
+}
+
+.prod:hover {
+    border-color: var(--sweet-pink);
+    transform: translateY(-2px);
+}
+
+.prod:disabled {
+    opacity: 1;
+}
+
+.prod:disabled .em,
+.prod:disabled b,
+.prod:disabled .p {
+    opacity: 0.4;
+}
+
+.prod .em {
+    font-size: 34px;
+    display: block;
+}
+
+.prod b {
+    display: block;
+    font-size: 17px;
+    margin: 4px 0 2px;
+}
+
+.prod .p {
+    color: var(--sweet-pink);
+    font-weight: 800;
+    display: block;
+    margin: 2px 0 8px;
+}
+
+.prod small {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.prod .b {
+    display: inline-block;
+    min-width: 84px;
+    text-align: center;
+    padding: 4px 10px;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
+/*Carrito*/
+.cart {
+    position: sticky;
+    top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: calc(100vh - 24px);
+}
+
+.lines {
+    overflow: auto;
+    flex: 1;
+    min-height: 80px;
+}
+
+.line {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border);
+}
+
+.q {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.q button {
+    width: 28px;
+    height: 28px;
+    background: var(--sweet-bg-light);
+    color: var(--sweet-navy);
+    font-weight: 800;
+}
+
+.fila {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.total {
+    font: 800 26px "Baloo 2";
+}
+
+/*Pagos*/
+.pay {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.pay button {
+    padding: 10px;
+    background: var(--bg2);
+    color: var(--text);
+    border: 2px solid var(--border);
+    font-weight: 700;
+}
+
+.pay button.on {
+    border-color: var(--sweet-cyan);
+    background: var(--sweet-cyan);
+    color: #ffffff;
+}
+
+.qi {
+    width: 58px;
+    text-align: center;
+    padding: 5px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text);
+    font: inherit;
+    font-weight: 700;
+}

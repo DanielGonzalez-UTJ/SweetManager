@@ -1,0 +1,170 @@
+/*Inicio de sesión*/
+body:not(.con-sesion) .app {
+    display: none;
+}
+
+body.con-sesion .login {
+    display: none;
+}
+
+.login {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: auto;
+    background: #081a3f;
+    color: #ffffff;
+}
+
+.deco {
+    position: absolute;
+    font-size: 72px;
+    opacity: 0.1;
+    filter: grayscale(1) brightness(1.6);
+    pointer-events: none;
+}
+
+.login-card {
+    position: relative;
+    z-index: 1;
+    width: min(940px, 100%);
+    border: 1px solid #1d4a8f;
+    border-radius: 26px;
+    background: #082a5e;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.login-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 40px 24px;
+    text-align: center;
+    background: #052456;
+}
+
+.login-brand img {
+    width: 150px;
+    max-width: 60%;
+    height: auto;
+}
+
+.login-brand h1 {
+    font-size: 40px;
+    line-height: 1;
+}
+
+.login-brand h1 b {
+    color: var(--sweet-pink);
+}
+
+.login-brand p {
+    margin: 0;
+    font-size: 17px;
+}
+
+.login-form {
+    padding: 40px;
+    border-left: 1px solid #1d4a8f;
+}
+
+.login-form h2 {
+    font-size: 30px;
+}
+
+.login-form p {
+    margin: 6px 0 0;
+    font-size: 17px;
+    color: #dbe6ff;
+}
+
+.login-form label {
+    display: block;
+    margin: 20px 0 8px;
+    font-weight: 700;
+    font-size: 17px;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border: 1px solid #1f4f99;
+    border-radius: 12px;
+    background: #0c2f68;
+    color: #9db2d8;
+}
+
+.field:focus-within {
+    border-color: var(--sweet-cyan);
+    box-shadow: 0 0 0 3px rgba(17, 155, 234, 0.3);
+}
+
+.field svg {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.field input {
+    flex: 1;
+    min-width: 0;
+    padding: 16px 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: #ffffff;
+    font: inherit;
+}
+
+.field input::placeholder {
+    color: #8ea4cc;
+}
+
+.eye {
+    display: flex;
+    padding: 4px;
+    background: none;
+    color: #9db2d8;
+}
+
+.eye:hover {
+    color: #ffffff;
+}
+
+.lerr {
+    min-height: 22px;
+    margin: 12px 0 0 !important;
+    font-size: 14px !important;
+    font-weight: 700;
+    color: #ff8fb3 !important;
+}
+
+.lbtn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 16px;
+    background: var(--sweet-pink);
+    color: #ffffff;
+    font: 800 21px "Baloo 2", sans-serif;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(236, 24, 108, 0.35);
+    transition: filter 0.15s;
+}
+
+.lbtn:hover {
+    filter: brightness(1.1);
+}

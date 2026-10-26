@@ -1,0 +1,142 @@
+/*Estructura general: barra lateral, área principal, tarjetas y KPIs*/
+
+/*Layaut principal*/
+.app {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+/*Barra latetal (navegación)*/
+aside {
+    background: var(--sweet-navy);
+    color: #ffffff;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.logo {
+    font: 800 24px "Baloo 2", sans-serif;
+    padding: 4px 8px 14px;
+    line-height: 1;
+    text-align: center;
+}
+
+.logo-img {
+    display: block;
+    width: 100px;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto 10px;
+}
+
+.logo b {
+    color: var(--sweet-pink);
+}
+
+.logo small {
+    display: block;
+    font: 600 11px Nunito;
+    color: #b9c4dd;
+    margin-top: 4px;
+}
+
+.menu-btn {
+    background: none;
+    color: #d5dcec;
+    text-align: left;
+    padding: 11px 12px;
+    font-weight: 700;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.menu-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.menu-btn.on {
+    background: var(--sweet-pink);
+    color: #ffffff;
+}
+
+.stripe {
+    margin-top: auto;
+    display: flex;
+    gap: 6px;
+    padding: 8px;
+}
+
+.stripe i {
+    flex: 1;
+    height: 6px;
+    border-radius: 6px;
+}
+
+/*Área principal*/
+main {
+    padding: 18px;
+    min-width: 0;
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.top h2 {
+    font-size: 26px;
+}
+
+/*La fecha*/
+.who {
+    color: var(--muted);
+    font-size: 17px;
+}
+
+/*Tarjetas y kpis*/
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+}
+
+.kpi {
+    border-radius: 16px;
+    padding: 14px;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi:after {
+    content: "";
+    position: absolute;
+    right: -18px;
+    top: -18px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.kpi b {
+    display: block;
+    font: 800 28px "Baloo 2";
+}
+
+.kpi span {
+    font-size: 13px;
+    opacity: 0.9;
+}
