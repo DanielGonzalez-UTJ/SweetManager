@@ -1,5 +1,45 @@
 /*Lógica del punto de venta*/
-const cats = ['Todos', ...new Set(S.prods.map(p => p.c))];
+//const cats = ['Todos', ...new Set(S.prods.map(p => p.c))];
+let cats = ['Todos'];
+
+
+async function cargarProductos() {
+    try {
+        const respuesta = await fetch('../backend/productos.php');
+
+        if (!respuesta.ok) {
+            throw new Error('Error HTTP: ' + respuesta.status);
+        }
+
+        const productos = await respuesta.json();
+
+        if (!Array.isArray(productos)) {
+            throw new Error('La respuesta no contiene una lista');
+        }
+
+        S.prods = productos.map(p => ({
+            id: Number(p.id),
+            n: p.nombre,
+            c: p.categoria,
+            p: Number(p.precio),
+            s: Number(p.stock),
+            m: Number(p.stock_minimo),
+            e: p.emoji
+        }));
+
+        cats = [
+            'Todos',
+            ...new Set(S.prods.map(p => p.c))
+        ];
+
+        render();
+
+    } catch (error) {
+        console.error('Error cargando productos:', error);
+        toast('No se pudieron cargar los productos de MySQL');
+    }
+}
+
 
 const st = p => p.s <= 0 ? ['Agotado', 'e'] : p.s <= p.m ? ['Stock bajo', 'w'] : ['Óptimo', 'ok'];
 
@@ -173,16 +213,36 @@ document.addEventListener('click', e => {
     }
 });
 
+//Para el campo de cobrar
 document.addEventListener('input', e => {
     if (e.target.id === 'q') {
         S.q = e.target.value;
         render();
     } else if (e.target.id === 'recv') {
+        // Guardar el importe sin reconstruir el campo.
         S.recv = e.target.value;
-        const f = $('#recv');
-        render();
+
+        const t = total();
+        const suficiente =
+            S.recv !== '' &&
+            Number.isFinite(Number(S.recv)) &&
+            Number(S.recv) >= t;
+
+        // Actualizar el botón Cobrar sin mover el cursor.
+        const boton = document.querySelector('#cob');
+
+        if (boton) {
+            boton.disabled = !(
+                S.cart.length > 0 &&
+                (
+                    S.pay === 'Tarjeta' ||
+                    suficiente
+                )
+            );
+        }
     }
 });
+
 
 document.addEventListener('change', e => {
     if (e.target.dataset.qi) {
@@ -193,6 +253,7 @@ document.addEventListener('change', e => {
         S.fact = e.target.checked;
     }
 });
+cargarProductos();
 
 /*document.addEventListener('keydown', e => {
     if (e.key === 'F2') {

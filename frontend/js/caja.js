@@ -89,6 +89,7 @@ function nueva() {
 }
 
 function ticket(v) {
+    
     modal(
         'Ticket #' + v.f,
         `<div class="rcpt"><center><b>SweetManager</b><br>${v.h} · ${v.pay}${v.ped ? '<br>Pedido ' + v.ped : ''}</center><hr>${lineas(v.items, v.t)}<div class="fila"><span>Recibido</span><span>${money(v.rec)}</span></div><div class="fila"><span>Cambio</span><b>${money(Math.max(0, v.rec - v.t))}</b></div><hr><center>Precios con IVA 16% incluido<br>¡Gracias por tu compra!</center></div><button class="btn" style="margin-top:10px" data-act="print"> Imprimir</button>`,
