@@ -110,24 +110,81 @@ function desglose(id) {
     );
 }
 
-function abrirCaja(luego) {
+
+async function abrirCaja(luego) {
     modal(
         'Abrir caja',
         '<label>Fondo inicial en efectivo</label><input class="form-control" id="fo" type="number" inputmode="decimal" value="500">',
         'Abrir caja',
-        () => {
-            const f = +$('#fo').value;
-            if (isNaN(f) || f < 0) return toast('Escribe un fondo válido');
+        async () => {
+            const f = Number($('#fo').value);
 
-            S.turno = { fondo: f, ini: hora(), ts: Date.now() };
-            dlg.close();
-            toast('Caja abierta');
-            render();
-            if (typeof luego === 'function') luego();
+            if (!Number.isFinite(f) || f < 0) {
+                return toast('Escribe un fondo válido');
+            }
+
+            // Obtener el usuario que inició sesión.
+            // Ajustaremos esta parte según la estructura real de S.
+            const usuarioId =
+                S.user?.id ??
+                S.usuario?.id ??
+                S.userId ??
+                S.usuario_id;
+
+            if (!usuarioId) {
+                return toast('No se encontró el usuario de la sesión');
+            }
+
+            const boton = $('#dok');
+            boton.disabled = true;
+
+            try {
+                const respuesta = await fetch('backend/turnos.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        usuario_id: usuarioId,
+                        fondo_inicial: f
+                    })
+                });
+
+                const resultado = await respuesta.json();
+
+                if (!respuesta.ok) {
+                    throw new Error(
+                        resultado.error || 'No se pudo abrir la caja'
+                    );
+                }
+
+                S.turno = {
+                    id: resultado.turno_id,
+                    usuario_id: resultado.usuario_id,
+                    fondo: f,
+                    ini: hora(),
+                    ts: Date.now()
+                };
+
+                dlg.close();
+                toast('Caja abierta y guardada en MySQL');
+                render();
+
+                if (typeof luego === 'function') {
+                    luego();
+                }
+            } catch (error) {
+                toast(error.message || 'Error al conectar con el servidor');
+            } finally {
+                if (boton.isConnected) {
+                    boton.disabled = false;
+                }
+            }
         },
         'Ahora no'
     );
 }
+
 
 function corte() {
     const V = ok();
