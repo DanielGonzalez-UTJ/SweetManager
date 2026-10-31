@@ -1,45 +1,5 @@
 /*Lógica del punto de venta*/
-//const cats = ['Todos', ...new Set(S.prods.map(p => p.c))];
-let cats = ['Todos'];
-
-
-async function cargarProductos() {
-    try {
-        const respuesta = await fetch('../backend/productos.php');
-
-        if (!respuesta.ok) {
-            throw new Error('Error HTTP: ' + respuesta.status);
-        }
-
-        const productos = await respuesta.json();
-
-        if (!Array.isArray(productos)) {
-            throw new Error('La respuesta no contiene una lista');
-        }
-
-        S.prods = productos.map(p => ({
-            id: Number(p.id),
-            n: p.nombre,
-            c: p.categoria,
-            p: Number(p.precio),
-            s: Number(p.stock),
-            m: Number(p.stock_minimo),
-            e: p.emoji
-        }));
-
-        cats = [
-            'Todos',
-            ...new Set(S.prods.map(p => p.c))
-        ];
-
-        render();
-
-    } catch (error) {
-        console.error('Error cargando productos:', error);
-        toast('No se pudieron cargar los productos de MySQL');
-    }
-}
-
+const categorias = () => ['Todos', ...new Set(S.prods.map(p => p.c))];
 
 const st = p => p.s <= 0 ? ['Agotado', 'e'] : p.s <= p.m ? ['Stock bajo', 'w'] : ['Óptimo', 'ok'];
 
@@ -59,16 +19,18 @@ const toast = t => {
     }, 2600);
 };
 
-const total = () => S.cart.reduce((a, l) => a + l.p.p * l.q, 0);
+const total = () => sumaTicket(S.cart);
 
 function add(id) {
-    const p = S.prods.find(x => x.id == id);
-    const l = S.cart.find(x => x.p.id == id);
+    const p = buscarProducto(id);
+    const l = buscarLinea(id);
 
     if (l) {
         if (l.q >= p.s) return toast('Solo hay ' + p.s + ' en existencia');
+        guardaTicket();
         l.q++;
     } else if (p.s > 0) {
+        guardaTicket();
         S.cart.push({ p, q: 1 });
     }
 
@@ -77,23 +39,39 @@ function add(id) {
 }
 
 function qty(id, d) {
-    const l = S.cart.find(x => x.p.id == id);
+    const l = buscarLinea(id);
+
+    guardaTicket();
     l.q += d;
 
     if (l.q > l.p.s) l.q = l.p.s;
-    if (l.q <= 0) S.cart = S.cart.filter(x => x !== l);
+    if (l.q <= 0) S.cart = filtraLineal(S.cart, x => x !== l);
 
     render();
 }
 
-function setQty(id,n){const l=S.cart.find(x=>x.p.id==id);n=Math.floor(n)||0;
-    if(n>l.p.s){n=l.p.s;toast('Solo hay '+n+' en existencia')}
-    if(n<=0)S.cart=S.cart.filter(x=>x!==l);else l.q=n;render()}
+function setQty(id, n) {
+    const l = buscarLinea(id);
+
+    n = Math.floor(n) || 0;
+    guardaTicket();
+
+    if (n > l.p.s) {
+        n = l.p.s;
+        toast('Solo hay ' + n + ' en existencia');
+    }
+
+    if (n <= 0) S.cart = filtraLineal(S.cart, x => x !== l);
+    else l.q = n;
+
+    render();
+}
 
 function vVenta() {
-    const list = S.prods.filter(p => (S.cat === 'Todos' || p.c === S.cat) && p.n.toLowerCase().includes(S.q.toLowerCase()));
+    const list = filtraLineal(S.prods, p => (S.cat === 'Todos' || p.c === S.cat) && p.n.toLowerCase().includes(S.q.toLowerCase()));
     const t = total();
     const iva = t - t / 1.16;
+    const piezas = piezasTicket(S.cart);
     const c = S.recv === '' ? 0 : +S.recv - t;
 
     return `
@@ -101,7 +79,7 @@ function vVenta() {
             <div class="col-lg-7 col-xl-8">
                 <input class="search" id="q" placeholder="Buscar dulce" value="${S.q}" autocomplete="off">
                 <div class="chips">
-                    ${cats.map(c => `<button class="chip ${c === S.cat ? 'on' : ''}" data-cat="${c}">${c}</button>`).join('')}
+                    ${categorias().map(c => `<button class="chip ${c === S.cat ? 'on' : ''}" data-cat="${c}">${c}</button>`).join('')}
                 </div>
                 <div class="grid">
                     ${list.map(p => {
@@ -116,7 +94,7 @@ function vVenta() {
                 </div>
             </div>
             <div class="col-lg-5 col-xl-4">
-                <div class="card cart">
+                <div class="card cart" id="ticket">
                     <h3>Ticket actual</h3>
                     <div class="lines">
                         ${S.cart.map(l => `
@@ -140,11 +118,11 @@ function vVenta() {
                     <div class="pay">
                         ${['Efectivo', 'Tarjeta'].map(m => `
                             <button class="${S.pay === m ? 'on' : ''}" data-pay="${m}">
-                                ${m === 'Efectivo' ? '' : ''} ${m}
+                                ${m === 'Efectivo' ? '💵' : '💳'} ${m}
                             </button>
                         `).join('')}
                     </div>
-                    ${S.pay === 'Efectivo' ? `<input class="form-control" id="recv" type="number" inputmode="decimal" placeholder="Efectivo recibido" value="${S.recv}">` : ''}
+                    ${S.pay === 'Efectivo' ? `<input class="form-control" id="recv" type="number" inputmode="decimal" placeholder="Efectivo recibido (obligatorio)" value="${S.recv}">` : ''}
                     <div>
                         <div class="fila"><span>Subtotal</span><span>${money(t - iva)}</span></div>
                         <div class="fila"><span>IVA 16%</span><span>${money(iva)}</span></div>
@@ -152,13 +130,46 @@ function vVenta() {
                         <div class="fila"><b>Total</b><span class="total">${money(t)}</span></div>
                     </div>
                     <button class="cobrar" id="cob" ${S.cart.length && (S.pay === 'Tarjeta' || (S.recv !== '' && +S.recv >= t)) ? '' : 'disabled'}>Cobrar ${money(t)}</button>
-                    <button class="btn" style="background:var(--bg2);color:var(--muted)" data-clear>Vaciar ticket</button>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-ico" data-act="deshacer" ${S.historial.vacia() ? 'disabled' : ''}>
+                            <span class="material-symbols-rounded">undo</span>Deshacer
+                        </button>
+                        <button class="btn btn-ico" data-act="aespera" ${S.cart.length ? '' : 'disabled'}>
+                            <span class="material-symbols-rounded">pause_circle</span>En espera
+                        </button>
+                        <button class="btn btn-ico" data-act="retomar" ${S.espera.vacia() ? 'disabled' : ''}>
+                            <span class="material-symbols-rounded">play_circle</span>Retomar (${S.espera.tamano()})
+                        </button>
+                        <button class="btn" style="background:var(--bg2);color:var(--muted)" data-clear>Vaciar ticket</button>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <button class="barra-ticket" id="barticket" data-act="verticket" ${S.cart.length ? '' : 'hidden'}>
+            <span class="material-symbols-rounded">shopping_cart</span>
+            Ver ticket · ${money(t)}
+            <span class="b p">${piezas}</span>
+        </button>
     `;
 }
 
+
+/*Oculta la barra flotante cuando el ticket ya se ve en pantalla*/
+function vigilaTicket() {
+    const barra = $('#barticket');
+    const tarjeta = $('#ticket');
+
+    if (!barra || !tarjeta || typeof IntersectionObserver === 'undefined') return;
+
+    if (vigilaTicket.obs) vigilaTicket.obs.disconnect();
+
+    vigilaTicket.obs = new IntersectionObserver(
+        ([e]) => barra.classList.toggle('oculta', e.isIntersecting),
+        { threshold: 0.15 }
+    );
+    vigilaTicket.obs.observe(tarjeta);
+}
 
 function render() {
     if (SESION && !puede(S.view)) S.view = PERMISOS[SESION.rol][0];
@@ -183,6 +194,8 @@ function render() {
 
     /*Guardado local desactivado: save();*/
     fx();
+    vigilaTicket();
+    iniciaCarrusel();
 }
 
 const dlg = $('#dlg');
@@ -195,6 +208,7 @@ document.addEventListener('click', e => {
     if ((x = g('.menu-btn')) && x.dataset.v) {
         S.view = x.dataset.v;
         render();
+        refresca();
     } else if (x = g('[data-cat]')) {
         S.cat = x.dataset.cat;
         render();
@@ -206,14 +220,15 @@ document.addEventListener('click', e => {
         S.pay = x.dataset.pay;
         render();
     } else if (g('#cob')) {
-        cobrar();
+        seguro(cobrar);
     } else if (g('[data-clear]')) {
+        guardaTicket();
         S.cart = [];
         render();
     }
 });
 
-//Para el campo de cobrar
+
 document.addEventListener('input', e => {
     if (e.target.id === 'q') {
         S.q = e.target.value;
@@ -245,6 +260,11 @@ document.addEventListener('input', e => {
 
 
 document.addEventListener('change', e => {
+    if (e.target.id === 'orden') {
+        S.orden = e.target.value;
+        render();
+    }
+
     if (e.target.dataset.qi) {
         setQty(e.target.dataset.qi, +e.target.value);
     }
@@ -253,7 +273,6 @@ document.addEventListener('change', e => {
         S.fact = e.target.checked;
     }
 });
-cargarProductos();
 
 /*document.addEventListener('keydown', e => {
     if (e.key === 'F2') {

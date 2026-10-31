@@ -1,5 +1,6 @@
+
 /*Usuarios de prueba  , el almacenista usa la app móvil*/
-const USUARIOS = [
+/*const USUARIOS = [
     {
         id: 1,
         nombre: 'Ana López',
@@ -30,7 +31,7 @@ const ROLES = {
 };
 
 /*Pantallas por rol, la primera es la de inicio*/
-const PERMISOS = {
+/*const PERMISOS = {
     admin: ['dashboard', 'ventas', 'facturas', 'proveedores', 'perfil', 'contacto'],
     cajero: ['venta', 'pedidos', 'ventas', 'facturas', 'perfil', 'contacto']
 };
@@ -38,7 +39,7 @@ const PERMISOS = {
 let SESION = null;
 
 /*Valida el usuario y guarda el acceso anterior*/
-function login(usuario, clave) {
+/*function login(usuario, clave) {
     const u = USUARIOS.find(x => x.usuario === usuario && x.clave === clave);
 
     if (!u) return false;
@@ -51,4 +52,27 @@ function login(usuario, clave) {
 
 function puede(vista) {
     return !SESION || PERMISOS[SESION.rol].includes(vista);
+}*/
+
+/*Roles y pantallas permitidas, el usuario real llega de la base de datos al iniciar sesión*/
+const ROLES = {
+    admin: 'Administrador',
+    cajero: 'Cajero'
+};
+
+/*Pantallas por rol, la primera es la de inicio*/
+const PERMISOS = {
+    admin: ['dashboard', 'ventas', 'facturas', 'proveedores', 'perfil', 'contacto', 'nosotros'],
+    cajero: ['venta', 'pedidos', 'ventas', 'facturas', 'perfil', 'contacto', 'nosotros']
+};
+
+let SESION = null;
+
+function puede(vista) {
+    return !SESION || PERMISOS[SESION.rol].includes(vista);
+}
+
+/*Solo el administrador cancela ventas y genera reportes*/
+function esAdmin() {
+    return !!SESION && SESION.rol === 'admin';
 }

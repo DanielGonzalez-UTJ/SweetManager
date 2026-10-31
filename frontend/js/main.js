@@ -7,7 +7,8 @@ const T = {
     facturas: ['Facturación', vFac],
     proveedores: ['Proveedores', vProv],
     perfil: ['Perfil de usuario', vPerfil],
-    contacto: ['Contacto / Soporte', vContacto]
+    contacto: ['Contacto / Soporte', vContacto],
+    nosotros: ['Quiénes somos', vNosotros]
 };
 
 /*Tema claro y oscuro*/
@@ -36,7 +37,7 @@ function tema() {
 }
 
 /*Inicio y cierre de sesión*/
-function entrar(e) {
+async function entrar(e) {
     e.preventDefault();
 
     const u = $('#lu').value.trim();
@@ -48,8 +49,12 @@ function entrar(e) {
         return;
     }
 
-    if (!login(u, c)) {
-        err.textContent = 'Usuario o contraseña incorrectos';
+    try {
+        const r = await api('login.php', 'POST', { usuario: u, clave: c });
+
+        SESION = r.usuario;
+    } catch (error) {
+        err.textContent = error.message;
         $('#lp').value = '';
         $('#lp').focus();
         return;
@@ -58,22 +63,75 @@ function entrar(e) {
     err.textContent = '';
     $('#lform').reset();
 
+    try {
+        await entraALaApp();
+    } catch (error) {
+        err.textContent = error.message;
+        reiniciaSesion();
+    }
+}
+
+/*Carga los datos de la base de datos y muestra la aplicación según el rol*/
+async function entraALaApp() {
+    await recarga(false);
+
     document.querySelectorAll('.menu-btn').forEach(b => {
         b.hidden = b.dataset.v ? !puede(b.dataset.v) : false;
     });
 
     document.body.classList.add('con-sesion');
     S.view = PERMISOS[SESION.rol][0];
+    registra('Inició sesión');
     render();
+    iniciaRefresco();
 }
 
-function salir() {
+/*Si ya había una sesión abierta en el servidor, entra sin pedir la contraseña*/
+async function restauraSesion() {
+    try {
+        const r = await api('sesion.php');
+
+        if (r.usuario) {
+            SESION = r.usuario;
+            await entraALaApp();
+        }
+    } catch (_) {
+        reiniciaSesion();
+    }
+}
+
+async function salir() {
+    registra('Cerró sesión');
+    detieneRefresco();
+
+    try {
+        await api('logout.php', 'POST', {});
+    } catch (_) {}
+
+    reiniciaSesion();
+}
+
+function reiniciaSesion() {
     SESION = null;
     TABPERFIL = 'info';
     S.cart = [];
     S.recv = '';
+    S.prods = [];
+    S.prov = [];
+    S.ventas = [];
+    S.fac = [];
+    S.ped = [];
+    S.turno = null;
+    S.historial.vaciar();
+    S.espera = new Cola();
     document.body.classList.remove('con-sesion');
     $('#lu').focus();
+}
+
+function sesionVencida() {
+    detieneRefresco();
+    reiniciaSesion();
+    toast('Tu sesión terminó, inicia sesión otra vez');
 }
 
 function verClave() {
@@ -107,10 +165,17 @@ document.addEventListener('click', e => {
     if (d.act !== 'cuenta') menuCuenta(false);
 
     const acciones = {
-        ticket: () => ticket(S.ventas.find(v => v.f == d.f)),
+        ticket: () => ticket(buscarVenta(d.f)),
         cancel: () => cancelar(d.f),
         fac: () => desglose(d.f),
+        tprev: () => ticketVecino('ant'),
+        tnext: () => ticketVecino('sig'),
+        deshacer,
+        aespera: ponerEnEspera,
+        retomar,
         caja: () => (S.turno ? corte() : abrirCaja()),
+        reporte,
+        verticket: () => $('#ticket').scrollIntoView({ behavior: 'smooth', block: 'start' }),
         print: () => {
             try {
                 print();
@@ -122,16 +187,14 @@ document.addEventListener('click', e => {
         cuenta: () => menuCuenta(),
         perfil: () => irA('perfil'),
         contacto: () => irA('contacto'),
+        nosotros: () => irA('nosotros'),
         ptab: () => {
             TABPERFIL = d.t;
             render();
         },
         pguardar,
         pclave,
-        psexo: () => {
-            SESION.sexo = d.v;
-            render();
-        },
+        psexo: () => cambiaSexo(d.v),
         ptema: () => {
             aplicaTema(d.v === 'dark');
             render();
@@ -150,7 +213,7 @@ document.addEventListener('click', e => {
         pcan: () => pcan(d.id)
     };
 
-    acciones[d.act]?.();
+    seguro(() => acciones[d.act]?.());
 });
 
 document.addEventListener('click', e => {
@@ -168,3 +231,4 @@ document.documentElement.dataset.bsTheme = esOscuro() ? 'dark' : 'light';
 iconoTema();
 render();
 $('#lu').focus();
+restauraSesion();
