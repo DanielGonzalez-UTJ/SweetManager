@@ -1,0 +1,5 @@
+# Rutas antiguas del frontend (ventas.php, datos.php...) hacia el punto de entrada MVC
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(login|logout|sesion|productos|datos|ventas|pedidos|turnos|usuarios|proveedores)\.php$ index.php?ruta=$1 [L]
+</IfModule>

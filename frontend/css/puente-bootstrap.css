@@ -1,0 +1,105 @@
+/*Puente entre Bootstrap y los colores de SweetManager*/
+:root,
+[data-bs-theme] {
+    --bs-body-bg: var(--bg2);
+    --bs-body-color: var(--text);
+    --bs-emphasis-color: var(--text);
+    --bs-secondary-color: var(--muted);
+    --bs-tertiary-bg: var(--bg2);
+    --bs-border-color: var(--border);
+    --bs-link-color: var(--sweet-cyan);
+    --bs-font-sans-serif: Nunito, system-ui, sans-serif;
+}
+
+.row > * {
+    min-width: 0;
+}
+
+hr {
+    opacity: 1;
+}
+
+/*Botones*/
+.btn {
+    --bs-btn-color: #ffffff;
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-color: #ffffff;
+    --bs-btn-hover-bg: var(--sweet-navy);
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-color: #ffffff;
+    --bs-btn-active-bg: var(--sweet-navy);
+    --bs-btn-active-border-color: transparent;
+    --bs-btn-border-radius: 12px;
+    --bs-btn-font-size: 0.95rem;
+}
+
+.btn.pk {
+    --bs-btn-hover-bg: var(--sweet-pink);
+    --bs-btn-active-bg: var(--sweet-pink);
+}
+
+.btn.cy {
+    --bs-btn-hover-bg: var(--sweet-cyan);
+    --bs-btn-active-bg: var(--sweet-cyan);
+}
+
+.btn.tema {
+    --bs-btn-hover-color: var(--text);
+    --bs-btn-hover-bg: var(--bg2);
+    --bs-btn-active-color: var(--text);
+    --bs-btn-active-bg: var(--bg2);
+}
+
+/*Formularios*/
+.form-label {
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.form-control,
+.form-select {
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background-color: var(--card);
+    color: var(--text);
+    font-size: inherit;
+}
+
+.form-select {
+    padding-right: 36px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--card);
+    color: var(--text);
+    border-color: var(--sweet-cyan);
+    box-shadow: 0 0 0 3px rgba(17, 155, 234, 0.25);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+    background-color: var(--bg2);
+    opacity: 0.65;
+}
+
+.form-control::placeholder {
+    color: var(--muted);
+}
+
+/*Tablas y tarjetas*/
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text);
+    --bs-table-border-color: var(--border);
+    --bs-table-hover-bg: var(--bg2);
+    --bs-table-hover-color: var(--text);
+}
+
+.card {
+    --bs-card-bg: var(--card);
+    --bs-card-color: var(--text);
+    --bs-card-border-color: var(--border);
+}

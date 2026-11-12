@@ -1,0 +1,42 @@
+/*Pedidos*/
+.ped {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    border-left: 6px solid var(--sweet-cyan);
+}
+
+.ped.late {
+    border-left-color: var(--err);
+}
+
+.pos-n {
+    font: 800 30px "Baloo 2";
+    color: var(--sweet-pink);
+    min-width: 30px;
+    text-align: center;
+}
+
+.pb {
+    flex: 1;
+    min-width: 0;
+}
+
+.pb .fila {
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.mut {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+#np {
+    margin-left: auto;
+}
+
+#np:empty {
+    display: none;
+}
