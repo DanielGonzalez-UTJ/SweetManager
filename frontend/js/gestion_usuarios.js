@@ -45,21 +45,21 @@ function formularioUsuario(id) {
         <label>Nombre de usuario</label><input class="form-control mb-2" id="nu_usuario" minlength="3" maxlength="30" pattern="[A-Za-z0-9._-]+" value="${esc(u.usuario)}" required>
         <label>Correo</label><input class="form-control mb-2" id="nu_correo" type="email" maxlength="120" value="${esc(u.correo)}" required>
         <label>Teléfono</label><input class="form-control mb-2" id="nu_telefono" type="tel" inputmode="numeric" maxlength="10" placeholder="10 dígitos" value="${esc(u.telefono||'')}">
-        <label>Rol</label><select class="form-select" id="nu_rol" ${esPropio ? 'disabled' : ''}><option value="cajero" ${u.rol==='cajero'?'selected':''}>Cajero</option><option value="admin" ${u.rol==='admin'?'selected':''}>Administrador</option><option value="almacenista" ${u.rol==='almacenista'?'selected':''}>Almacenista</option></select>
+        <label>Rol</label><select class="form-select" id="nu_rol" ${esPropio ? 'disabled' : ''}><option value="cajero" ${u.rol==='cajero'?'selected':''}>Cajero</option><option value="admin" ${u.rol==='admin'?'selected':''}>Administrador</option></select>
         ${esPropio ? '<small class="text-muted">No puedes cambiar tu propio rol de administrador.</small>' : ''}
         ${id?'':'<small class="text-muted">Se generará una contraseña temporal única. El empleado deberá cambiarla al ingresar.</small>'}`,'Guardar',async()=>{
         const datos={accion:'guardar',nombre:$('#nu_nombre').value.trim(),usuario:$('#nu_usuario').value.trim(),correo:$('#nu_correo').value.trim(),telefono:$('#nu_telefono').value.trim(),rol:$('#nu_rol').value};
-        if(id) datos.id=id;
-        if(!datos.nombre||!datos.usuario||!datos.correo||!datos.rol) throw new Error('Completa los campos obligatorios');
-        if(!/^[A-Za-z0-9._-]{3,30}$/.test(datos.usuario)) throw new Error('El usuario debe tener 3 a 30 caracteres, sin espacios');
-        if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(datos.correo)) throw new Error('Escribe un correo válido');
+            if(id) datos.id=id;
+            if(!datos.nombre||!datos.usuario||!datos.correo||!datos.rol) throw new Error('Completa los campos obligatorios');
+            if(!/^[A-Za-z0-9._-]{3,30}$/.test(datos.usuario)) throw new Error('El usuario debe tener 3 a 30 caracteres, sin espacios');
+            if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(datos.correo)) throw new Error('Escribe un correo válido');
         const telefono = datos.telefono.replace(/\D/g, '');
-        if(datos.telefono && !/^\d{10}$/.test(telefono)) throw new Error('El teléfono debe tener exactamente 10 dígitos');
+            if(datos.telefono && !/^\d{10}$/.test(telefono)) throw new Error('El teléfono debe tener exactamente 10 dígitos');
         datos.telefono = telefono;
         const r=await api('usuarios.php','POST',datos);
         dlg.close();
         if(r.clave_temporal) modal('Contraseña temporal generada',`<p>Comparte esta contraseña con el empleado. Solo se muestra ahora.</p><div class="alert alert-warning fw-bold user-select-all">${esc(r.clave_temporal)}</div>`,'Copiar y cerrar',async()=>{await navigator.clipboard.writeText(r.clave_temporal);dlg.close();await renderUsuarios();});
-        else {toast('Usuario actualizado');await renderUsuarios();}
+            else {toast('Usuario actualizado');await renderUsuarios();}
     });
 }
 

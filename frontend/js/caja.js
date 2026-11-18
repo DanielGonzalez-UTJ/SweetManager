@@ -102,17 +102,101 @@ function ticket(v) {
         'Ticket #' + v.f,
         `
             ${navegacion}
+
+            <!-- Ticket visual original -->
             <div class="rcpt">
-                <center><b>SweetManager</b><br>${v.h} · ${v.pay}${v.ped ? '<br>Pedido ' + v.ped : ''}</center>
+                <center>
+                    <b>SweetManager</b><br>
+                    ${v.h} · ${v.pay}
+                    ${v.ped ? '<br>Pedido ' + v.ped : ''}
+                </center>
                 <hr>
                 ${lineas(v.items, v.t)}
-                <div class="fila"><span>Recibido</span><span>${money(v.rec)}</span></div>
-                <div class="fila"><span>Cambio</span><b>${money(Math.max(0, v.rec - v.t))}</b></div>
+                <div class="fila">
+                    <span>Recibido</span>
+                    <span>${money(v.rec)}</span>
+                </div>
+                <div class="fila">
+                    <span>Cambio</span>
+                    <b>${money(Math.max(0, v.rec - v.t))}</b>
+                </div>
                 <hr>
-                <center>Precios con IVA 16% incluido<br>¡Gracias por tu compra!</center>
+                <center>
+                    Precios con IVA 16% incluido<br>
+                    ¡Gracias por tu compra!
+                </center>
             </div>
-            <button class="btn btn-ico mt-2" disabled title="En proceso">
-                <span class="material-symbols-rounded">print</span>Imprimir (en proceso)
+
+            <!-- Versión independiente para impresión -->
+            <div style="position:absolute; left:-10000px; top:0;">
+                <div class="rcpt-ticket" id="ticket-print">
+                    <header class="ticket-encabezado">
+                        <strong>SWEETMANAGER</strong>
+                        <span>PUNTO DE VENTA</span>
+                        <span>Gracias por tu preferencia</span>
+                    </header>
+                    <hr>
+                    <div class="ticket-dato">
+                        <span>FECHA:</span>
+                        <b>${v.h}</b>
+                    </div>
+                    <div class="ticket-dato">
+                        <span>TICKET #:</span>
+                        <b>${v.f}</b>
+                    </div>
+                    ${v.ped ? `
+                    <div class="ticket-dato">
+                        <span>PEDIDO:</span><b>${v.ped}</b>
+                    </div>` : ''}
+                    <div class="ticket-dato">
+                        <span>FORMA DE PAGO:</span>
+                        <b>${v.pay}</b>
+                    </div>
+                    <hr>
+                    <div class="ticket-columnas">
+                        <b>CANT.</b>
+                        <b>DESCRIPCIÓN</b>
+                        <b>IMPORTE</b>
+                    </div>
+                    ${v.items.map(i => `
+                        <div class="ticket-producto">
+                            <span>${i.q}</span>
+                            <span>${i.n}</span>
+                            <span>${money(i.q * i.p)}</span>
+                        </div>
+                    `).join('')}
+                    <hr>
+                    <div class="ticket-total">
+                        <span>SUBTOTAL:</span>
+                        <b>${money(v.t / 1.16)}</b>
+                    </div>
+                    <div class="ticket-total">
+                        <span>IVA 16%:</span>
+                        <b>${money(v.t - v.t / 1.16)}</b>
+                    </div>
+                    <div class="ticket-total destacado">
+                        <span>TOTAL:</span>
+                        <b>${money(v.t)}</b>
+                    </div>
+                    <div class="ticket-total">
+                        <span>PAGO CON:</span>
+                        <b>${money(v.rec)}</b>
+                    </div>
+                    <div class="ticket-total">
+                        <span>SU CAMBIO:</span>
+                        <b>${money(Math.max(0, v.rec - v.t))}</b>
+                    </div>
+                    <hr>
+                    <footer>
+                        ¡GRACIAS POR SU COMPRA!<br>
+                        Vuelva pronto
+                    </footer>
+                </div>
+            </div>
+
+            <button class="btn btn-ico mt-2" data-act="print-ticket">
+                <span class="material-symbols-rounded">print</span>
+                Imprimir ticket
             </button>
         `,
         'Nueva venta',
@@ -125,6 +209,41 @@ function ticketVecino(direccion) {
     const vecino = NODO_TICKET && NODO_TICKET[direccion];
 
     if (vecino) ticket(vecino.dato);
+}
+
+/*Imprime únicamente el comprobante, con formato para rollo térmico de 80 mm*/
+function imprimirTicket() {
+    const contenido = document.getElementById('ticket-print');
+    if (!contenido) return toast('No se encontró el ticket para imprimir');
+
+    const ventana = window.open('', '_blank', 'width=420,height=720');
+    if (!ventana) return toast('Permite las ventanas emergentes para imprimir el ticket');
+
+    ventana.document.open();
+    ventana.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8">
+        <title>Ticket SweetManager</title>
+        <style>
+            @page { size: 80mm auto; margin: 4mm; }
+            * { box-sizing: border-box; }
+            body { width: 72mm; margin: 0 auto; color: #000; background: #fff;
+                font: 11px "Courier New", monospace; }
+            .rcpt-ticket { width: 100%; padding: 0; background: #fff; color: #000; }
+            .ticket-encabezado, footer { display:flex; flex-direction:column; text-align:center; gap:3px; }
+            .ticket-encabezado strong { font: bold 22px Georgia,serif; }
+            .ticket-encabezado span, footer { font-size:11px; }
+            hr { border:0; border-top:1px dashed #000; margin:9px 0; }
+            .ticket-dato, .ticket-total { display:flex; justify-content:space-between; gap:8px; margin:4px 0; }
+            .ticket-dato b { text-align:right; }
+            .ticket-columnas, .ticket-producto { display:grid; grid-template-columns: 12% 1fr 27%; gap:4px; margin:5px 0; }
+            .ticket-columnas { border-bottom:1px dashed #000; padding-bottom:5px; }
+            .ticket-producto span:last-child, .ticket-columnas b:last-child { text-align:right; }
+            .ticket-total { font-size:12px; font-weight:bold; }
+            .ticket-total.destacado { font-size:17px; margin-top:8px; }
+            footer { margin-top:14px; line-height:1.6; }
+            @media print { body { width:72mm; } }
+        </style></head><body>${contenido.outerHTML}</body></html>`);
+    ventana.document.close();
+    ventana.onload = () => { ventana.focus(); ventana.print(); ventana.close(); };
 }
 
 function desglose(id) {

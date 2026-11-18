@@ -192,6 +192,7 @@ document.addEventListener('click', e => {
         caja: () => (S.turno ? corte() : abrirCaja()),
         reporte,
         verticket: () => $('#ticket').scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        'print-ticket': imprimirTicket,
         print: () => {
             try {
                 print();

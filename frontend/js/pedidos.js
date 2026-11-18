@@ -174,23 +174,67 @@ function pcan(id) {
 
 function entregar(o) {
     if (!S.turno) return abrirCaja(() => entregar(o));
-    const f = encuentraLineal(o.items, i => buscarProducto(i.id).s < i.q);
+
+    const f = encuentraLineal(
+        o.items,
+        i => buscarProducto(i.id).s < i.q
+    );
+
     if (f) return toast('Falta existencia de ' + f.n);
-    
+
     modal(
         'Entregar ' + o.folio,
-        `<p><b>${o.cliente}</b> · Total <b>${money(o.t)}</b></p>
+
+        `
+        <p>
+            <b>${o.cliente}</b> · Total
+            <b>${money(o.t)}</b>
+        </p>
+
         <label>Forma de pago</label>
-        <select class="form-select" id="ep"><option>Efectivo</option><option>Tarjeta</option></select>
-        <label>Efectivo recibido</label>
-        <input class="form-control" id="er" type="number" inputmode="decimal">
-        <label><input type="checkbox" id="ef" checked> Generar factura</label>`,
+        <select class="form-select" id="ep">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Tarjeta">Tarjeta</option>
+        </select>
+
+        <div id="contenedor-efectivo">
+            <label>Efectivo recibido</label>
+            <input
+                class="form-control"
+                id="er"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Ingresa el efectivo recibido"
+            >
+        </div>
+
+        <div class="form-check mt-2">
+            <input
+                type="checkbox"
+                id="ef"
+                checked
+            >
+            <label for="ef">Generar factura</label>
+        </div>
+        `,
+
         'Cobrar y entregar',
+
         async () => {
             const pay = $('#ep').value;
-            const r = +$('#er').value;
+            const efectivo = $('#er').value;
+            const r = Number(efectivo);
 
-            if (pay === 'Efectivo' && ($('#er').value === '' || r < o.t)) return toast('Escribe el efectivo recibido; debe cubrir el total');
+            if (
+                pay === 'Efectivo' &&
+                (efectivo === '' || !Number.isFinite(r) || r < o.t)
+            ) {
+                return toast(
+                    'El efectivo recibido debe cubrir el total'
+                );
+            }
+
             if (COBRANDO) return;
 
             COBRANDO = true;
@@ -205,14 +249,30 @@ function entregar(o) {
                 });
 
                 registra('Pedido ' + o.folio + ' entregado');
+
                 dlg.close();
                 await recarga(false);
                 ticket(res.venta);
                 render();
+
             } finally {
                 COBRANDO = false;
             }
         },
+
         'Volver'
     );
+
+    // Mostrar u ocultar efectivo según la forma de pago
+    const formaPago = $('#ep');
+    const contenedorEfectivo = $('#contenedor-efectivo');
+
+    const actualizarEfectivo = () => {
+        contenedorEfectivo.style.display =
+            formaPago.value === 'Tarjeta' ? 'none' : '';
+    };
+
+    formaPago.addEventListener('change', actualizarEfectivo);
+
+    actualizarEfectivo();
 }

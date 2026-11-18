@@ -124,3 +124,53 @@
     padding: 7px 0;
     border-bottom: 1px dashed var(--border);
 }
+
+
+/* Ticket térmico inspirado en el comprobante de referencia */
+.rcpt-ticket {
+    background: #fff;
+    color: #111;
+    border: 1px dashed #c9c9c9;
+    border-radius: 3px;
+    padding: 18px 16px;
+    max-width: 390px;
+    margin: 0 auto;
+    font: 12px "Courier New", monospace;
+    box-shadow: 0 2px 10px #00000012;
+}
+.ticket-encabezado, .rcpt-ticket footer {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    text-align: center;
+}
+.ticket-encabezado strong {
+    font: 800 22px "Baloo 2", sans-serif;
+    letter-spacing: 1px;
+}
+.ticket-encabezado span, .rcpt-ticket footer { font-size: 11px; }
+.rcpt-ticket hr {
+    border: 0;
+    border-top: 1px dashed #777;
+    opacity: 1;
+    margin: 10px 0;
+}
+.ticket-dato, .ticket-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 5px 0;
+}
+.ticket-dato b { text-align: right; }
+.ticket-columnas, .ticket-producto {
+    display: grid;
+    grid-template-columns: 12% minmax(0, 1fr) 28%;
+    gap: 5px;
+    margin: 6px 0;
+}
+.ticket-columnas { border-bottom: 1px dashed #777; padding-bottom: 6px; }
+.ticket-producto span:last-child, .ticket-columnas b:last-child { text-align: right; }
+
+.ticket-total { font-size: 12px; font-weight: 700; }
+.ticket-total.destacado { font-size: 17px; margin-top: 9px; }
+.rcpt-ticket footer { margin-top: 14px; line-height: 1.6; }

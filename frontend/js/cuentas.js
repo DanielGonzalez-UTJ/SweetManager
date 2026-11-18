@@ -1,7 +1,8 @@
 /*Roles y pantallas permitidas, el usuario real llega de la base de datos al iniciar sesión*/
 const ROLES = {
     admin: 'Administrador',
-    cajero: 'Cajero'
+    cajero: 'Cajero',
+    
 };
 
 /*Pantallas por rol, la primera es la de inicio*/

@@ -248,18 +248,18 @@ function reporte() {
                     <div class="fila"><span>${n}</span><span>${q} pzas</span></div>
                 `).join('') || '<div class="mut">Todavía no hay ventas</div>'}
             </div>
-            <button class="btn btn-ico mt-2" disabled data-act="print">
-                <span class="material-symbols-rounded">print</span>Imprimir (en proceso)
+            <button class="btn btn-ico mt-2" data-act="print">
+                <span class="material-symbols-rounded">print</span>Imprimir
             </button>
         `,
-        'Descargar Excel (en proceso)',
-        () => toast('La descarga del reporte de Excel está en proceso.'),
+        'Descargar Excel',
+        descargaCsv,
         'Cerrar'
     );
 }
 
 /*Archivo CSV con todas las ventas, se abre en Excel*/
-/*function descargaCsv() {
+function descargaCsv() {
     const celda = x => '"' + String(x).replace(/"/g, '""') + '"';
     const filas = [['Folio', 'Fecha y hora', 'Forma de pago', 'Piezas', 'Subtotal', 'IVA 16%', 'Total', 'Estado']];
 
@@ -285,7 +285,6 @@ function reporte() {
     document.body.appendChild(enlace);
     enlace.click();
     enlace.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast('Reporte descargado');
 }
-*/
