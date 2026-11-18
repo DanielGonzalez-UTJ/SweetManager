@@ -247,7 +247,6 @@ function piezasTicket(renglones, i = 0) {
 }
 
 
-/*Deshacer en el ticket, usa una pila de fotos del ticket*/
 function guardaTicket() {
     const foto = S.cart.map(l => ({ id: l.p.id, q: l.q }));
 

@@ -6,7 +6,7 @@ const ROLES = {
 
 /*Pantallas por rol, la primera es la de inicio*/
 const PERMISOS = {
-    admin: ['dashboard', 'ventas', 'facturas', 'proveedores', 'usuarios', 'perfil', 'contacto', 'nosotros'],
+    admin: ['dashboard', 'ventas', 'facturas', 'proveedores','inventario', 'usuarios', 'perfil', 'contacto', 'nosotros'],
     cajero: ['venta', 'pedidos', 'ventas', 'facturas', 'perfil', 'contacto', 'nosotros']
 };
 
