@@ -24,6 +24,13 @@ class Auth
         return $u;
     }
 
+    public static function roles(array $roles): array
+    {
+        $u=self::sesion();
+        if (!in_array($u['rol'],$roles,true)) throw new ApiError('No tienes permiso para esta acción',403);
+        return $u;
+    }
+
     public static function rol(string $rol): array
     {
         $u = self::sesion();

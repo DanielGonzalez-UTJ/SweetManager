@@ -42,7 +42,11 @@ class DatosController
             'pedidos' => $pedidos,
             'turno' => $d['turno'] ? Pantalla::turno($d['turno']) : null,
             'ventas' => $ventas,
-            'facturas' => $facturas
+            'facturas' => $facturas,
+            'solicitudes' => $d['solicitudes'],
+            'movimientos' => $d['movimientos'],
+            'compras' => $d['compras'],
+            'lotes' => $d['lotes']
         ]);
     }
 }

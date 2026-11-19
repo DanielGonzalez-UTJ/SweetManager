@@ -258,7 +258,7 @@ function reporte() {
     );
 }
 
-/*Archivo CSV con todas las ventas, se abre en Excel*/
+/*Archivo CSV con todas las ventas, se abre en Excel :)*/
 function descargaCsv() {
     const celda = x => '"' + String(x).replace(/"/g, '""') + '"';
     const filas = [['Folio', 'Fecha y hora', 'Forma de pago', 'Piezas', 'Subtotal', 'IVA 16%', 'Total', 'Estado']];

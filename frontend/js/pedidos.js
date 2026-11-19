@@ -1,6 +1,9 @@
 /*Pedidos (colas de pedidos)*/
 //Mejorar lo estados de los pedido, ejemplo una checklist de estados, para que se pueda ver el progreso de cada pedido y no solo 3 estados. Pendiente, Preparando, Listo, Entregado, Cancelado.
+/*Validar fecha hora, que no sean anteriores a la actual
+  validar de existencia antes de generar el pedido (botón generar) */
 const ESTADOS = {
+    esperando_abastecimiento: ['Esperando mercancía', 'w', 'Esperando recepción'],
     pendiente: ['Pendiente', 'p', 'Empezar a preparar'],
     preparando: ['Preparando', 'i', 'Marcar como listo'],
     listo: ['Listo', 'ok', 'Entregar y cobrar'],
@@ -47,26 +50,28 @@ function cuando(ts) {
 }
 
 function vPed() {
+    const solicitudes = S.solicitudes || [];
     return `<div class="bar"><button class="btn pk" data-act="pnew">+ Nuevo pedido</button></div>` +
+        (solicitudes.length ? `<div class="card mb-3"><h3>Mis solicitudes de abastecimiento</h3>${solicitudes.map(x => `<div class="fila py-2"><span><b>SA-${String(x.id).padStart(5,'0')}</b> · ${x.items.map(i=>i.producto+' × '+i.cantidad).join(', ')}</span><span class="b ${x.estado==='confirmada'?'ok':'w'}">${x.estado.replace('_',' ')}</span></div>${x.respuesta_admin ? `<small class="mut">${esc(x.respuesta_admin)}</small>`:''}`).join('')}</div>` : '') +
         colaPedidos().aArreglo().map((o, i) => `
             <div class="card ped ${o.ent < Date.now() ? 'late' : ''}">
                 <div class="pos-n">${i + 1}</div>
                 <div class="pb">
                     <div class="fila">
-                        <b>${o.cliente}</b>
+                        <b>${esc(o.cliente)}</b>
                         <span>
                             ${i === 0 ? '<span class="b" style="background: var(--sweet-pink)">Siguiente</span>' : ''}
                             <span class="b ${ESTADOS[o.st][1]}">${ESTADOS[o.st][0]}</span>
                         </span>
                     </div>
-                    <div class="mut">${o.folio} · ${o.tel || 'Sin teléfono'} · <b>${cuando(o.ent)}</b></div>
-                    <div style="margin:6px 0">${o.items.map(x => x.q + ' × ' + x.n).join(', ')}</div>
-                    ${o.nota ? `<div class="mut"> ${o.nota}</div>` : ''}
+                    <div class="mut">${o.folio} · ${esc(o.tel || 'Sin teléfono')} · <b>${cuando(o.ent)}</b></div>
+                    <div class="my-2">${o.items.map(x => o.st==='preparando' ? `<label class="d-flex align-items-center gap-2 py-1"><input type="checkbox" data-act="pcheck" data-pedido="${o.id}" data-producto="${x.id}" ${x.preparado?'checked':''}><span>${x.q} × ${esc(x.n)}</span></label>` : `<div>${x.q} × ${esc(x.n)}</div>`).join('')}</div>
+                    ${o.nota ? `<div class="mut"> ${esc(o.nota)}</div>` : ''}
                     <div class="fila">
                         <b>${money(o.t)}</b>
                         <span>
                             <button class="btn" style="background:var(--err)" data-act="pcan" data-id="${o.id}">Cancelar</button>
-                            <button class="btn ${o.st === 'listo' ? 'pk' : 'cy'}" data-act="pnext" data-id="${o.id}">${ESTADOS[o.st][2]}</button>
+                            ${o.st !== 'esperando_abastecimiento' ? `<button class="btn ${o.st === 'listo' ? 'pk' : 'cy'}" data-act="pnext" data-id="${o.id}">${ESTADOS[o.st][2]}</button>` : '<small class="text-warning">Pendiente de recepción física</small>'}
                         </span>
                     </div>
                 </div>
@@ -79,22 +84,24 @@ function pnew() {
     const m = new Date(Date.now() + 864e5);
     m.setHours(10, 0, 0, 0);
     const v = new Date(m - m.getTimezoneOffset() * 6e4).toISOString().slice(0, 16);
+    const min = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 16);
     
     modal(
         'Nuevo pedido',
         `<label>Nombre de quien encarga</label>
             <input class="form-control" id="pn">
             <label>Teléfono</label>
-            <input class="form-control" id="pt" type="tel" inputmode="tel">
+            <input class="form-control" id="pt" type="tel" inputmode="numeric" maxlength="10" placeholder="10 dígitos">
             <label>Fecha y hora de entrega</label>
-            <input class="form-control" id="pe" type="datetime-local" value="${v}">
+            <input class="form-control" id="pe" type="datetime-local" min="${min}" value="${v}">
             <label>Productos</label>
             <div style="display:flex;gap:6px">
-            <select class="form-select" id="pp">${S.prods.map(p => `<option value="${p.id}">${p.n} · ${money(p.p)}</option>`).join('')}</select>
+            <select class="form-select" id="pp">${S.prods.map(p => `<option value="${p.id}">${esc(p.n)} · ${money(p.p)}</option>`).join('')}</select>
             <input class="form-control" id="pq" type="number" min="1" value="1" style="width:72px">
             <button class="btn cy" data-act="padd">+</button>
         </div>
         <div id="pl"></div>
+            <button type="button" class="btn cy mt-2" data-act="psolicitar">Solicitar productos faltantes al administrador</button>
             <label>Nota (opcional)</label>
         <input class="form-control" id="po">`,
         'Guardar pedido',
@@ -103,13 +110,16 @@ function pnew() {
             const e = $('#pe').value;
 
             if (!n) return toast('Escribe el nombre de quien encarga');
+            const tel = $('#pt').value.trim().replace(/\D/g, '');
+            if ($('#pt').value.trim() && !/^\d{10}$/.test(tel)) return toast('El teléfono debe tener exactamente 10 dígitos');
+            if (new Date(e).getTime() <= Date.now()) return toast('La fecha y hora deben ser posteriores a este momento');
             if (!S.nuevo.length) return toast('Agrega al menos un producto');
             if (!e) return toast('Elige fecha y hora de entrega');
 
             await api('pedidos.php', 'POST', {
                 accion: 'crear',
                 cliente: n,
-                telefono: $('#pt').value.trim(),
+                telefono: tel,
                 entrega: e,
                 nota: $('#po').value.trim(),
                 items: S.nuevo.map(i => ({ id: i.id, q: i.q }))
@@ -126,7 +136,7 @@ function ppaint() {
     const t = S.nuevo.reduce((a, i) => a + i.q * i.p, 0);
     $('#pl').innerHTML = S.nuevo.map((i, k) => `
         <div class="fila" style="padding:6px 0;border-bottom:1px dashed var(--border)">
-            <span>${i.q} × ${i.n}</span>
+            <span>${i.q} × ${esc(i.n)}<small class="d-block ${i.q > (buscarProducto(i.id)?.s ?? 0) ? 'text-danger' : 'text-success'}">Disponible: ${buscarProducto(i.id)?.s ?? 0}</small></span>
             <span>${money(i.q * i.p)} <button data-act="pdel" data-i="${k}" style="background:none;color:var(--err);font-weight:800">✕</button></span>
         </div>
     `).join('') + (t ? `<div class="fila" style="margin-top:6px"><b>Total</b><b>${money(t)}</b></div>` : '');
@@ -139,6 +149,24 @@ function padd() {
     
     l ? l.q += q : S.nuevo.push({ id: p.id, n: p.n, q, p: p.p });
     ppaint();
+}
+
+async function psolicitar() {
+    const cliente=$('#pn').value.trim(); const entrega=$('#pe').value;
+    const telefono=$('#pt').value.trim().replace(/\D/g,'');
+    if (!cliente) return toast('Escribe el nombre del cliente');
+    if (telefono && !/^\d{10}$/.test(telefono)) return toast('El teléfono debe tener exactamente 10 dígitos');
+    if (!entrega || new Date(entrega).getTime() <= Date.now()) return toast('Selecciona una fecha y hora futura');
+    if (!S.nuevo.length) return toast('Agrega los productos que necesita el cliente');
+    try {
+        const r=await api('index.php?ruta=abastecimiento','POST',{accion:'solicitar',cliente,telefono,entrega,nota:$('#po').value.trim(),items:S.nuevo.map(i=>({id:i.id,q:i.q}))});
+        dlg.close(); await recarga(); toast('Solicitud SA-'+String(r.id).padStart(5,'0')+' enviada al administrador');
+    } catch(e) { toast(e.message); }
+}
+
+async function marcarItemPreparado(pedido,producto,preparado){
+    try{await api('pedidos.php','POST',{accion:'checklist',id:pedido,producto_id:producto,preparado});await recarga();}
+    catch(e){toast(e.message);await recarga();}
 }
 
 async function pnext(id) {
@@ -159,7 +187,7 @@ function pcan(id) {
 
     modal(
         'Cancelar pedido ' + o.folio,
-        `<p>Se cancelará el pedido de <b>${o.cliente}</b>.</p>`,
+        `<p>Se cancelará el pedido de <b>${esc(o.cliente)}</b>.</p>`,
         'Sí, cancelar',
         async () => {
             await api('pedidos.php', 'POST', { accion: 'estado', id: o.id, estado: 'cancelado' });
@@ -187,7 +215,7 @@ function entregar(o) {
 
         `
         <p>
-            <b>${o.cliente}</b> · Total
+            <b>${esc(o.cliente)}</b> · Total
             <b>${money(o.t)}</b>
         </p>
 

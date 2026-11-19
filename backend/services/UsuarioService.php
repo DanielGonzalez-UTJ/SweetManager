@@ -62,7 +62,7 @@ class UsuarioService
         foreach (['nombre','usuario','correo','rol'] as $campo) if (trim((string)($d[$campo] ?? '')) === '') throw new ApiError('Completa todos los campos obligatorios');
         if (mb_strlen($d['nombre']) > 100 || !preg_match('/^[A-Za-z0-9._-]{3,30}$/', $d['usuario'])) throw new ApiError('Revisa el nombre o el usuario (3 a 30 caracteres, sin espacios)');
         if (!filter_var($d['correo'], FILTER_VALIDATE_EMAIL) || mb_strlen($d['correo']) > 120) throw new ApiError('Escribe un correo válido');
-        if (!in_array($d['rol'], ['admin','cajero'], true)) throw new ApiError('Selecciona un rol válido');
+        if (!in_array($d['rol'], ['admin','cajero','almacenista'], true)) throw new ApiError('Selecciona un rol válido');
         $telefono = preg_replace('/\D+/', '', (string)($d['telefono'] ?? ''));
         if ($telefono !== '' && !preg_match('/^\d{10}$/', $telefono)) throw new ApiError('El teléfono debe tener exactamente 10 dígitos');
         $d['telefono'] = $telefono === '' ? null : $telefono;

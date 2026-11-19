@@ -18,9 +18,12 @@ class PedidoController
             throw new ApiError('Elige la fecha y hora de entrega');
         }
 
-        if (mb_strlen($nota) > 255 || mb_strlen($telefono) > 20) {
-            throw new ApiError('El teléfono o la nota son demasiado largos');
+        if ($telefono !== '') {
+            $telefono = preg_replace('/\\D+/', '', $telefono);
+            if (!preg_match('/^\\d{10}$/', $telefono)) throw new ApiError('El teléfono debe contener exactamente 10 dígitos');
         }
+        if (mb_strlen($nota) > 255) throw new ApiError('La nota es demasiado larga');
+        if ($ts <= time()) throw new ApiError('La fecha y hora de entrega deben ser posteriores a la hora actual');
 
         $items = isset($d['items']) && is_array($d['items']) ? $d['items'] : [];
 
@@ -34,6 +37,13 @@ class PedidoController
         );
 
         Response::json(['ok' => true, 'pedido' => Pantalla::pedido($pedido, $filas)]);
+    }
+
+    public function checklist(): void
+    {
+        $d=Request::cuerpo();
+        (new PedidoService())->marcarProductoPreparado((int)($d['id']??0),(int)($d['producto_id']??0),!empty($d['preparado']));
+        Response::json(['ok'=>true]);
     }
 
     public function estado(): void

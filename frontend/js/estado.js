@@ -48,5 +48,6 @@ const S = {
     ventas: [], //Ventas de la base de datos
     fac: [], //Facturas de la base de datos
     ped: [], //Pedidos de la base de datos
+    solicitudes: [], movimientos: [], compras: [], lotes: [],//Lo que andamos pasando para lo de pedidos 
     turno: null //Turno actual
 };

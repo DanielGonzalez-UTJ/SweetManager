@@ -219,15 +219,24 @@ document.addEventListener('click', e => {
         ccopiar,
         cenviar,
         'inventario-refresh': () => seguro(refresca),
+        'inv-compra': crearCompraUI,
+        'oc-add-line': agregarLineaCompra,
+        'oc-del-line': () => quitarLineaCompra(x),
+        'inv-recibir': () => recibirCompraUI(+d.id),
+        'inv-merma': registrarMermaUI,
+        'sol-resolver': () => resolverSolicitudUI(+d.id, d.estado),
+        'sol-compra': () => crearCompraDesdeSolicitudUI(+d.id),
         provnew: () => provForm(),
         provedit: () => provForm(+d.i),
         pnew,
         padd,
+        psolicitar,
         pdel: () => {
             S.nuevo.splice(+d.i, 1);
             ppaint();
         },
         pnext: () => pnext(d.id),
+        pcheck: () => marcarItemPreparado(+d.pedido,+d.producto,x.checked),
         pcan: () => pcan(d.id)
     };
 

@@ -31,7 +31,8 @@ return [
         'metodos' => [
             'POST' => [
                 'crear' => 'PedidoController@crear',
-                'estado' => 'PedidoController@estado'
+                'estado' => 'PedidoController@estado',
+                'checklist' => 'PedidoController@checklist'
             ]
         ]
     ],
@@ -56,6 +57,19 @@ return [
                 'guardar' => ['UsuarioController@guardar', ['sesion_completa', 'rol:admin']],
                 'estado' => ['UsuarioController@estado', ['sesion_completa', 'rol:admin']],
                 'restablecer' => ['UsuarioController@restablecer', ['sesion_completa', 'rol:admin']]
+            ]
+        ]
+    ],
+    'abastecimiento' => [
+        'middleware' => ['sesion_completa'],
+        'metodos' => [
+            'GET' => 'InventarioController@listar',
+            'POST' => [
+                'solicitar' => ['InventarioController@solicitud', ['sesion_completa', 'rol:cajero']],
+                'resolver' => ['InventarioController@resolver', ['sesion_completa', 'rol:admin']],
+                'compra' => ['InventarioController@compra', ['sesion_completa', 'rol:admin']],
+                'recibir' => ['InventarioController@recibir', ['sesion_completa', 'roles:admin,almacenista']],
+                'merma' => ['InventarioController@merma', ['sesion_completa', 'roles:admin,almacenista']]
             ]
         ]
     ],

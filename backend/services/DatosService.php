@@ -5,6 +5,7 @@ class DatosService
     public function paquete(array $u): array
     {
         $esAdmin = $u['rol'] === 'admin';
+        $esInventario = $esAdmin || $u['rol'] === 'almacenista';
         $proveedores = new Proveedor();
         $pedidos = new Pedido();
         $ventas = new Venta();
@@ -24,7 +25,11 @@ class DatosService
             'turno' => (new Turno())->abiertoVisible((int) $u['id'], $u['rol']),
             'ventas' => $filasVentas,
             'detalleVentas' => $ventas->detalle($ventaIds),
-            'facturas' => $ventaIds ? (new Factura())->vigentesDeVentas($ventaIds) : []
+            'facturas' => $ventaIds ? (new Factura())->vigentesDeVentas($ventaIds) : [],
+            'solicitudes' => (new Inventario())->solicitudes(!$esAdmin, (int)$u['id']),
+            'movimientos' => $esInventario ? (new Inventario())->movimientos() : [],
+            'compras' => $esInventario ? (new Inventario())->compras() : [],
+            'lotes' => $esInventario ? (new Inventario())->lotesPorCaducar(30) : []
         ];
     }
 }

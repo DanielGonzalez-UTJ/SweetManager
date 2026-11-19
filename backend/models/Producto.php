@@ -4,7 +4,7 @@ class Producto
 {
     public function activosConCategoria(): array
     {
-        return Database::pdo()->query('SELECT p.id, p.nombre, c.nombre AS categoria, p.precio, p.stock, p.stock_minimo, p.imagen  FROM productos p JOIN categorias c ON c.id = p.categoria_id WHERE p.activo = 1 ORDER BY p.id')->fetchAll();
+        return Database::pdo()->query('SELECT p.id, p.nombre, c.nombre AS categoria, p.precio, p.stock, p.stock_reservado, GREATEST(0,p.stock-p.stock_reservado-COALESCE((SELECT SUM(l.cantidad_disponible) FROM inventario_lotes l WHERE l.producto_id=p.id AND l.caducidad<CURDATE()),0)) AS disponible, p.stock_minimo, p.imagen  FROM productos p JOIN categorias c ON c.id = p.categoria_id WHERE p.activo = 1 ORDER BY p.id')->fetchAll();
     }
 
     public function activosPorIds(array $ids): array

@@ -61,6 +61,8 @@ class Router
                 Auth::sesionCompleta();
             } elseif (strpos($m, 'rol:') === 0) {
                 Auth::rol(substr($m, 4));
+            } elseif (strpos($m, 'roles:') === 0) {
+                Auth::roles(explode(',', substr($m, 6)));
             } else {
                 throw new RuntimeException('Middleware desconocido: ' . $m);
             }

@@ -45,7 +45,7 @@ function formularioUsuario(id) {
         <label>Nombre de usuario</label><input class="form-control mb-2" id="nu_usuario" minlength="3" maxlength="30" pattern="[A-Za-z0-9._-]+" value="${esc(u.usuario)}" required>
         <label>Correo</label><input class="form-control mb-2" id="nu_correo" type="email" maxlength="120" value="${esc(u.correo)}" required>
         <label>Teléfono</label><input class="form-control mb-2" id="nu_telefono" type="tel" inputmode="numeric" maxlength="10" placeholder="10 dígitos" value="${esc(u.telefono||'')}">
-        <label>Rol</label><select class="form-select" id="nu_rol" ${esPropio ? 'disabled' : ''}><option value="cajero" ${u.rol==='cajero'?'selected':''}>Cajero</option><option value="admin" ${u.rol==='admin'?'selected':''}>Administrador</option></select>
+        <label>Rol</label><select class="form-select" id="nu_rol" ${esPropio ? 'disabled' : ''}><option value="cajero" ${u.rol==='cajero'?'selected':''}>Cajero</option><option value="admin" ${u.rol==='admin'?'selected':''}>Administrador</option><option value="almacenista" ${u.rol==='almacenista'?'selected':''}>Almacenista (aplicación móvil)</option></select>
         ${esPropio ? '<small class="text-muted">No puedes cambiar tu propio rol de administrador.</small>' : ''}
         ${id?'':'<small class="text-muted">Se generará una contraseña temporal única. El empleado deberá cambiarla al ingresar.</small>'}`,'Guardar',async()=>{
         const datos={accion:'guardar',nombre:$('#nu_nombre').value.trim(),usuario:$('#nu_usuario').value.trim(),correo:$('#nu_correo').value.trim(),telefono:$('#nu_telefono').value.trim(),rol:$('#nu_rol').value};

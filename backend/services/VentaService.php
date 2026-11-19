@@ -39,6 +39,8 @@ class VentaService
                     throw new ApiError('El pedido todavía no está listo para entregarse', 409);
                 }
 
+                /* La reserva se libera dentro de esta misma transacción; si el cobro falla, se revierte. */
+                (new Pedido())->liberarReserva($pedidoId);
                 $lineas = $tickets->lineasDePedido($pedidoId);
             } else {
                 $lineas = $tickets->lineasDeProductos($items);
@@ -65,6 +67,7 @@ class VentaService
                 'cambio' => TicketService::dinero($recibidoC - $totalC)
             ]);
             $ventas->agregarDetalle($ventaId, TicketService::filas($lineas));
+            (new Inventario())->asignarLotesVenta($ventaId);
 
             if ($factura) {
                 (new Factura())->crear($ventaId, TicketService::dinero($subtotalC), TicketService::dinero($ivaC), TicketService::dinero($totalC));
@@ -92,8 +95,13 @@ class VentaService
 
     public function cancelar(array $admin, int $id): void
     {
-        if ((new Venta())->cancelar($id, (int) $admin['id']) === 0) {
-            throw new ApiError('La venta no existe o ya estaba cancelada', 404);
-        }
+        $pdo=Database::pdo(); $pdo->beginTransaction();
+        try {
+            $st=$pdo->prepare('SELECT estado FROM ventas WHERE id=? FOR UPDATE'); $st->execute([$id]);
+            if($st->fetchColumn()!=='pagada') throw new ApiError('La venta no existe o ya estaba cancelada',404);
+            (new Inventario())->reponerLotesVenta($id);
+            if ((new Venta())->cancelar($id, (int)$admin['id'])===0) throw new ApiError('La venta no existe o ya estaba cancelada',404);
+            $pdo->commit();
+        } catch(Throwable $e){ Database::revertir(); throw $e; }
     }
 }

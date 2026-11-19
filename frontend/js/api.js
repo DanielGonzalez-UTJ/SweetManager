@@ -70,6 +70,10 @@ function aplicaDatos(d) {
     S.prods = d.productos;
     S.prov = d.proveedores;
     S.ped = d.pedidos;
+    S.solicitudes = d.solicitudes || [];
+    S.movimientos = d.movimientos || [];
+    S.compras = d.compras || [];
+    S.lotes = d.lotes || [];
     S.turno = d.turno;
     S.ventas = d.ventas;
     S.fac = d.facturas;
@@ -88,7 +92,7 @@ function refresca() {
 
 /*Actualiza los datos cada 20 segundos para ver lo que hacen los demás*/
 let TEMPORIZADOR = null;
-const VISTAS_SIN_FORMULARIO = ['dashboard', 'venta', 'pedidos', 'ventas', 'facturas', 'proveedores'];
+const VISTAS_SIN_FORMULARIO = ['dashboard', 'venta', 'pedidos', 'ventas', 'facturas', 'proveedores', 'inventario'];
 
 function iniciaRefresco() {
     detieneRefresco();
